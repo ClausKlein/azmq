@@ -1,15 +1,16 @@
-cmake_minimum_required(VERSION 2.8)
-project(azmq)
+cmake_minimum_required(VERSION 3.13...3.21)
+
+project(azmq LANGUAGES CXX)
 
 include(AzmqCPack.cmake)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
+set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++17")
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
 
 if (${CMAKE_CXX_PLATFORM_ID} STREQUAL "Windows")
@@ -52,6 +53,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS}
                     ${ZeroMQ_INCLUDE_DIRS}
                     ${PROJECT_SOURCE_DIR})
+# TODO: add_definitions(-D BOOST_ASIO_NO_DEPRECATED)
 
 if(NOT AZMQ_NO_TESTS)
     enable_testing()

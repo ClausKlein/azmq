@@ -96,7 +96,7 @@ void schedule_ping(asio::deadline_timer & timer, server_t & server) {
     });
 };
 
-int main(int argc, char** argv) {
+int main(int /* argc */, char** /* argv */) {
     asio::io_service ios;
 
     std::cout << "Running...";
