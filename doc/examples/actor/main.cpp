@@ -17,7 +17,7 @@ namespace pt = boost::posix_time;
 
 class server_t {
 public:
-    server_t(asio::io_service & ios)
+    server_t(asio::io_context & ios)
         : pimpl_(std::make_shared<impl>())
         , frontend_(azmq::actor::spawn(ios, run, pimpl_))
     { }
@@ -76,7 +76,7 @@ private:
     // This is the function run by the background thread
     static void run(azmq::socket & backend, ptr pimpl) {
         do_receive(backend, pimpl);
-        backend.get_io_service().run();
+        backend.get_executor().run();
     }
 
     azmq::socket frontend_;

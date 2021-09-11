@@ -50,7 +50,7 @@ namespace detail {
             : azmq::detail::service_base<actor_service>(ios)
         { }
 
-        void shutdown_service() override { }
+        void shutdown_service() { }
 
         using is_alive = opt::boolean<static_cast<int>(opt::limits::lib_actor_min)>;
         using detached = opt::boolean<static_cast<int>(opt::limits::lib_actor_min) + 1>;
@@ -82,7 +82,7 @@ namespace detail {
         struct concept_ {
             using ptr = std::shared_ptr<concept_>;
 
-            boost::asio::io_service io_service_;
+            boost::asio::io_context io_service_;
             boost::asio::signal_set signals_;
             pair_socket socket_;
             thread_t thread_;
@@ -200,7 +200,7 @@ namespace detail {
                 , defer_start_(defer_start)
             { }
 
-            void on_install(boost::asio::io_service&, void*) {
+            void on_install(boost::asio::io_context&, void*) {
                 if (defer_start_) return;
                 defer_start_ = false;
                 concept_::run(p_);

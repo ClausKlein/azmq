@@ -76,7 +76,8 @@ AZMQ_V1_INLINE_NAMESPACE_BEGIN
         message(nocopy_t, boost::asio::const_buffer const& buffer)
             : message(nocopy,
                 boost::asio::mutable_buffer(
-                    (void *)boost::asio::buffer_cast<const void*>(buffer),
+                    // TODO: deprecated! CK (void *)boost::asio::buffer_cast<const void*>(buffer),
+                    (void *)buffer.data(),
                     boost::asio::buffer_size(buffer)),
                 nullptr,
                 nullptr)
@@ -85,7 +86,8 @@ AZMQ_V1_INLINE_NAMESPACE_BEGIN
         message(nocopy_t, boost::asio::mutable_buffer const& buffer, void* hint, zmq_free_fn* deleter)
         {
             auto rc = zmq_msg_init_data(&msg_,
-                                        boost::asio::buffer_cast<void*>(buffer),
+                                        // TODO: deprecated! CK boost::asio::buffer_cast<void*>(buffer),
+                                        buffer.data(),
                                         boost::asio::buffer_size(buffer),
                                         deleter, hint);
             if (rc)
@@ -107,7 +109,8 @@ AZMQ_V1_INLINE_NAMESPACE_BEGIN
 
             std::unique_ptr<D> d(new D(std::forward<Deleter>(deleter)));
             auto rc = zmq_msg_init_data(&msg_,
-                                        boost::asio::buffer_cast<void*>(buffer),
+                                        // TODO: deprecated! CK boost::asio::buffer_cast<void*>(buffer),
+                                        buffer.data(),
                                         boost::asio::buffer_size(buffer),
                                         call_deleter, d.get());
             if (rc)
@@ -125,7 +128,8 @@ AZMQ_V1_INLINE_NAMESPACE_BEGIN
             };
 
             auto rc = zmq_msg_init_data(&msg_,
-                                        boost::asio::buffer_cast<void*>(buffer),
+                                        // TODO: deprecated! CK boost::asio::buffer_cast<void*>(buffer),
+                                        buffer.data(),
                                         boost::asio::buffer_size(buffer),
                                         call_deleter, reinterpret_cast<void *>(deleter));
             if (rc)
@@ -191,10 +195,13 @@ AZMQ_V1_INLINE_NAMESPACE_BEGIN
             return boost::asio::buffer(const_cast<void *>(data()), size());
         }
 
+#if 0
         template<typename T>
         T const& buffer_cast() const {
+            // FIXME: deprecated! CK
             return *boost::asio::buffer_cast<T const*>(buffer());
         }
+#endif
 
         size_t buffer_copy(boost::asio::mutable_buffer const& target) const {
             return boost::asio::buffer_copy(target, buffer());

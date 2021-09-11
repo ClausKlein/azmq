@@ -87,21 +87,21 @@ public:
     using conflate = opt::boolean<ZMQ_CONFLATE>;
 
     /** \brief socket constructor
-     *  \param ios reference to an asio::io_service
+     *  \param ios reference to an asio::io_context
      *  \param s_type int socket type
      *      For socket types see the zeromq documentation
      *  \param optimize_single_threaded bool
      *      Defaults to false - socket is not optimized for a single
-     *      threaded io_service
+     *      threaded io_context
      *  \remarks
      *      ZeroMQ's socket types are not thread safe. Because there is no
-     *      guarantee that the supplied io_service is running in a single
+     *      guarantee that the supplied io_context is running in a single
      *      thread, Aziomq by default wraps all calls to ZeroMQ APIs with
      *      a mutex. If you can guarantee that a single thread has called
-     *      io_service.run() you may bypass the mutex by passing true for
+     *      io_context.run() you may bypass the mutex by passing true for
      *      optimize_single_threaded.
      */
-    explicit socket(boost::asio::io_service& ios,
+    explicit socket(boost::asio::io_context& ios,
                     int type,
                     bool optimize_single_threaded = false)
             : azmq::detail::basic_io_object<detail::socket_service>(ios) {
@@ -110,12 +110,15 @@ public:
             throw boost::system::system_error(ec);
     }
 
+#if 0
+    // FIXME! CK
     socket(socket&& other)
-        : azmq::detail::basic_io_object<detail::socket_service>(other.get_io_service()) {
+        : azmq::detail::basic_io_object<detail::socket_service>(other.get_executor()) {
         get_service().move_construct(get_implementation(),
                                      other.get_service(),
                                      other.get_implementation());
     }
+#endif
 
     socket& operator=(socket&& rhs) {
         get_service().move_assign(get_implementation(),
@@ -623,8 +626,8 @@ public:
     /** \brief Cancel all outstanding asynchronous operations
      *  \param ec set to indicate what, if any, error occurred
      */
-    boost::system::error_code cancel(boost::system::error_code & ec) {
-        return get_service().cancel(get_implementation(), ec);
+    void cancel(boost::system::error_code & ec) {
+        get_service().cancel(get_implementation(), ec);
     }
 
     /** \brief Cancel all outstanding asynchronous operations
@@ -632,7 +635,8 @@ public:
      */
     void cancel() {
         boost::system::error_code ec;
-        if (get_service().cancel(get_implementation(), ec))
+        get_service().cancel(get_implementation(), ec);
+        if (ec)
             throw boost::system::system_error(ec);
     }
 
@@ -644,12 +648,12 @@ public:
     }
 
     /** \brief monitor events on a socket
-        *  \param ios io_service on which to bind the returned monitor socket
+        *  \param ios io_context on which to bind the returned monitor socket
         *  \param events int mask of events to publish to returned socket
         *  \param ec error_code to set on error
         *  \returns socket
     **/
-    socket monitor(boost::asio::io_service & ios,
+    socket monitor(boost::asio::io_context & ios,
                    int events,
                    boost::system::error_code & ec) {
         auto uri = get_service().monitor(get_implementation(), events, ec);
@@ -663,11 +667,11 @@ public:
     }
 
     /** \brief monitor events on a socket
-        *  \param ios io_service on which to bind the returned monitor socket
+        *  \param ios io_context on which to bind the returned monitor socket
         *  \param events int mask of events to publish to returned socket
         *  \returns socket
     **/
-    socket monitor(boost::asio::io_service & ios,
+    socket monitor(boost::asio::io_context & ios,
                    int events) {
         boost::system::error_code ec;
         auto res = monitor(ios, events, ec);
@@ -691,7 +695,7 @@ namespace detail {
         typedef socket Base;
 
     public:
-        specialized_socket(boost::asio::io_service & ios,
+        specialized_socket(boost::asio::io_context & ios,
                            bool optimize_single_threaded = false)
             : Base(ios, Type, optimize_single_threaded)
         {

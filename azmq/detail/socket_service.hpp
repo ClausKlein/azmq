@@ -97,7 +97,7 @@ namespace detail {
             void do_open(boost::asio::io_service & ios,
 #else
             void do_open(boost::asio::io_context & ios,
-#endif			 
+#endif
                          context_type & ctx,
                          int type,
                          bool optimize_single_threaded,
@@ -137,8 +137,8 @@ namespace detail {
                 return 0 != events_mask(); // true if more operations scheduled
             }
 
-            boost::system::error_code cancel_stream_descriptor(boost::system::error_code & ec) {
-                return socket_ops::cancel_stream_descriptor(sd_, ec);
+            void cancel_stream_descriptor(boost::system::error_code & ec) {
+                socket_ops::cancel_stream_descriptor(sd_, ec);
             }
 
             void cancel_ops(boost::system::error_code const& ec, op_queue_type & ops) {
@@ -199,16 +199,16 @@ namespace detail {
 
         using core_access = azmq::detail::core_access<socket_service>;
 
-#ifdef AZMQ_DETAIL_USE_IO_SERVICE	  
+#ifdef AZMQ_DETAIL_USE_IO_SERVICE
         explicit socket_service(boost::asio::io_service & ios)
 #else
-        explicit socket_service(boost::asio::io_service & ios)
+        explicit socket_service(boost::asio::io_context & ios)
 #endif
             : azmq::detail::service_base<socket_service>(ios)
             , ctx_(context_ops::get_context())
         { }
 
-        void shutdown_service() override {
+        void shutdown_service() {
             ctx_.reset();
         }
 
@@ -489,12 +489,12 @@ namespace detail {
             }
         }
 
-        boost::system::error_code cancel(implementation_type & impl,
+        void cancel(implementation_type & impl,
                                          boost::system::error_code & ec) {
             unique_lock l{ *impl };
             descriptors_.unregister_descriptor(impl);
             cancel_ops(impl);
-            return impl->cancel_stream_descriptor(ec);
+            impl->cancel_stream_descriptor(ec);
         }
 
         std::string monitor(implementation_type & impl, int events,
@@ -568,7 +568,7 @@ namespace detail {
 #ifdef AZMQ_DETAIL_USE_IO_SERVICE
                 impl->sd_->get_io_service().post([weak_impl, ec]() { handle_missed_events(weak_impl, ec); });
 #else
-		boost::asio::post(impl->sd_->get_executor(), [weak_impl, ec]() { handle_missed_events(weak_impl, ec); });
+                boost::asio::post(impl->sd_->get_executor(), [weak_impl, ec]() { handle_missed_events(weak_impl, ec); });
 #endif
             }
         }
@@ -645,9 +645,9 @@ namespace detail {
 
                 if (evs || ec) {
 #ifdef AZMQ_DETAIL_USE_IO_SERVICE
-  		    impl->sd_->get_io_service().post([handler, ec] { handler(ec, 0); });
+                    impl->sd_->get_io_service().post([handler, ec] { handler(ec, 0); });
 #else
-		    boost::asio::post(impl->sd_->get_executor(), [handler, ec] { handler(ec, 0); });
+                    boost::asio::post(impl->sd_->get_executor(), [handler, ec] { handler(ec, 0); });
 #endif
                 } else {
                     impl->sd_->async_read_some(boost::asio::null_buffers(),
@@ -694,10 +694,10 @@ namespace detail {
                     if (op->do_perform(impl->socket_)) {
                         impl->in_speculative_completion_ = true;
                         l.unlock();
-#ifdef AZMQ_DETAIL_USE_IO_SERVICE			
+#ifdef AZMQ_DETAIL_USE_IO_SERVICE
                         get_io_service().post(deferred_completion(impl, std::move(op)));
 #else
-                        get_io_context().post(deferred_completion(impl, std::move(op)));
+                        boost::asio::post(deferred_completion(impl, std::move(op)));
 #endif
                         return ec;
                     }

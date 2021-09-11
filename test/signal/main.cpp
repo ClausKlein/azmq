@@ -14,7 +14,7 @@
 #include "../catch.hpp"
 
 TEST_CASE( "Send/Receive a signal", "[signal]" ) {
-    boost::asio::io_service ios;
+    boost::asio::io_context ios;
     azmq::pair_socket sb(ios);
     azmq::pair_socket sc(ios);
 
