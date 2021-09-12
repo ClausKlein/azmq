@@ -76,7 +76,11 @@ private:
     // This is the function run by the background thread
     static void run(azmq::socket & backend, ptr pimpl) {
         do_receive(backend, pimpl);
-        backend.get_executor().run();
+#if 1
+        backend.get_io_service().run();
+#else
+        backend.get_executor().run();   // FIXME: OOST_ASIO_NO_DEPRECATED! CK
+#endif
     }
 
     azmq::socket frontend_;

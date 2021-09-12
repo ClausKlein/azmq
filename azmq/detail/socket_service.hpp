@@ -137,8 +137,8 @@ namespace detail {
                 return 0 != events_mask(); // true if more operations scheduled
             }
 
-            void cancel_stream_descriptor(boost::system::error_code & ec) {
-                socket_ops::cancel_stream_descriptor(sd_, ec);
+            boost::system::error_code cancel_stream_descriptor(boost::system::error_code & ec) {
+                return socket_ops::cancel_stream_descriptor(sd_, ec);
             }
 
             void cancel_ops(boost::system::error_code const& ec, op_queue_type & ops) {
@@ -208,7 +208,7 @@ namespace detail {
             , ctx_(context_ops::get_context())
         { }
 
-        void shutdown_service() {
+        void shutdown_service() override {
             ctx_.reset();
         }
 
@@ -489,12 +489,12 @@ namespace detail {
             }
         }
 
-        void cancel(implementation_type & impl,
+        boost::system::error_code cancel(implementation_type & impl,
                                          boost::system::error_code & ec) {
             unique_lock l{ *impl };
             descriptors_.unregister_descriptor(impl);
             cancel_ops(impl);
-            impl->cancel_stream_descriptor(ec);
+            return impl->cancel_stream_descriptor(ec);
         }
 
         std::string monitor(implementation_type & impl, int events,

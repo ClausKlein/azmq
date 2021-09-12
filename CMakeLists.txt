@@ -6,10 +6,14 @@ project(azmq LANGUAGES CXX)
 
 include(AzmqCPack.cmake)
 
+# config setting:
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+#
+# TODO: use modern cmake and do not set global cmake variables! CK
+#
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
@@ -25,12 +29,14 @@ if(${CMAKE_CXX_PLATFORM_ID} STREQUAL "Windows")
     endif()
 endif()
 
+# option
 if(ZMQ_STATIC)
     add_definitions(-D ZMQ_STATIC)
 endif()
 
 set(ADDITIONAL_LIBS)
 
+# option
 if(USE_LIBCXX)
     set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
@@ -52,8 +58,13 @@ set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
-# TODO: add_definitions(-D BOOST_ASIO_NO_DEPRECATED)
 
+# option
+if(AZMQ_NO_DEPRECATED)
+    add_definitions(-D BOOST_ASIO_NO_DEPRECATED)
+endif()
+
+# option
 if(NOT AZMQ_NO_TESTS)
     enable_testing()
 
@@ -70,4 +81,5 @@ endif()
 
 add_subdirectory(doc)
 
+# TODO: export cmake package config setting! CK
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/azmq DESTINATION include)

@@ -110,15 +110,18 @@ public:
             throw boost::system::system_error(ec);
     }
 
-#if 0
-    // FIXME! CK
     socket(socket&& other)
-        : azmq::detail::basic_io_object<detail::socket_service>(other.get_executor()) {
+#if 1
+        : azmq::detail::basic_io_object<detail::socket_service>(other.get_io_service())
+#else
+        // FIXME: OOST_ASIO_NO_DEPRECATED! CK
+        : azmq::detail::basic_io_object<detail::socket_service>(other.get_executor())
+#endif
+    {
         get_service().move_construct(get_implementation(),
                                      other.get_service(),
                                      other.get_implementation());
     }
-#endif
 
     socket& operator=(socket&& rhs) {
         get_service().move_assign(get_implementation(),
@@ -626,8 +629,9 @@ public:
     /** \brief Cancel all outstanding asynchronous operations
      *  \param ec set to indicate what, if any, error occurred
      */
-    void cancel(boost::system::error_code & ec) {
-        get_service().cancel(get_implementation(), ec);
+    boost::system::error_code cancel(boost::system::error_code & ec) {
+        // FIXME: OOST_ASIO_NO_DEPRECATED! CK
+        return get_service().cancel(get_implementation(), ec);
     }
 
     /** \brief Cancel all outstanding asynchronous operations

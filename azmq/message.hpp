@@ -195,13 +195,10 @@ AZMQ_V1_INLINE_NAMESPACE_BEGIN
             return boost::asio::buffer(const_cast<void *>(data()), size());
         }
 
-#if 0
         template<typename T>
         T const& buffer_cast() const {
-            // FIXME: deprecated! CK
-            return *boost::asio::buffer_cast<T const*>(buffer());
+            return *boost::asio::buffer_cast<T const*>(buffer()); // FIXME: deprecated! CK
         }
-#endif
 
         size_t buffer_copy(boost::asio::mutable_buffer const& target) const {
             return boost::asio::buffer_copy(target, buffer());

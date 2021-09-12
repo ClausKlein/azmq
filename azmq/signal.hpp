@@ -56,10 +56,10 @@ uint8_t wait(socket & s, boost::system::error_code & ec) {
         if (ec)
             return 0;
         if (sz == sizeof(uint64_t)) {
-            // FIXME auto v = msg.buffer_cast<uint64_t>();
-            const auto v = static_cast<const uint64_t *>(msg.data());
-            if ((*v & 0xffffffffffff00u) == 0x77664433221100u)
-                return *v & 255;
+            // TODO: indirect usage of deprecated asio::buffer_cast<>! CK
+            auto v = msg.buffer_cast<uint64_t>();
+            if ((v & 0xffffffffffff00u) == 0x77664433221100u)
+                return v & 255;
         }
     }
 }
