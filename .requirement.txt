@@ -1,0 +1,11 @@
+### pip list --not-required --format=freeze
+builddriver==0.9.0
+cmake-format==0.6.13
+cmakelang==0.6.13
+cmakelint==1.4.1
+gcovr==4.2
+jinja2
+lxml
+ninja
+pygments
+simplejson
