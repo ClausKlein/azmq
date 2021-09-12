@@ -35,7 +35,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         shell: bash
         run: |
-          sudo apt-get install gcc-10 libzmq-dev libboost-all-dev
+          sudo apt-get install gcc-10 libzmq5 libboost-all-dev
           CXX=g++-10 cmake -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja
 
       - name: Install dependencies on macos
