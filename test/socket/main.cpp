@@ -589,9 +589,9 @@ TEST_CASE( "Socket Monitor", "[socket]" ) {
         int i = 0;
         CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_CONNECT_DELAYED);
         CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_CONNECTED);
-        #ifdef ZMQ_EVENT_HANDSHAKE_SUCCEEDED
+#ifdef ZMQ_EVENT_HANDSHAKE_SUCCEEDED
           CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_HANDSHAKE_SUCCEEDED);
-        #endif
+#endif
         CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_MONITOR_STOPPED);
         REQUIRE(client_monitor.events_.size() == i);
   }
@@ -600,9 +600,9 @@ TEST_CASE( "Socket Monitor", "[socket]" ) {
       int i = 0;
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_LISTENING);
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_ACCEPTED);
-      #ifdef ZMQ_EVENT_HANDSHAKE_SUCCEEDED
+#ifdef ZMQ_EVENT_HANDSHAKE_SUCCEEDED
         CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_HANDSHAKE_SUCCEEDED);
-      #endif
+#endif
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_CLOSED);
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_MONITOR_STOPPED);
       REQUIRE(server_monitor.events_.size() == i);
