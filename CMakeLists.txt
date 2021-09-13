@@ -55,11 +55,12 @@ find_package(
 )
 
 #FIXME: set(ZeroMQ_ROOT ../libzmq/stage)
-#XXX set(ZeroMQ_DIR /Users/clausklein/Workspace/cpp/libzmq/stage/lib/cmake/ZeroMQ)
-find_package(ZeroMQ 4.3 CONFIG REQUIRED)
+# use CONFIG package:  set(ZeroMQ_DIR /Users/clausklein/Workspace/cpp/libzmq/stage/lib/cmake/ZeroMQ)
+#XXX find_package(ZeroMQ 4.3 CONFIG REQUIRED)
+find_package(ZeroMQ 4.1 REQUIRED)
 
 #TODO: add missing namspace ZeroMQ:: to cmake config package: add_library(ZeroMQ::libzmq SHARED IMPORTED)
-add_library(ZeroMQ::libzmq ALIAS libzmq)
+#XXX add_library(ZeroMQ::libzmq ALIAS libzmq)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
@@ -75,9 +76,9 @@ target_include_directories(
 # being a cross-platform target, we enforce standards conformance on MSVC
 target_compile_options(${PROJECT_NAME} INTERFACE "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
-target_link_libraries(${PROJECT_NAME} INTERFACE ZeroMQ::libzmq Boost::thread)
-#NO! target_link_libraries(${PROJECT_NAME} INTERFACE ${CMAKE_THREAD_LIBS_INIT} ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${ADDITIONAL_LIBS})
-#NO! include_directories(${Boost_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
+#XXX target_link_libraries(${PROJECT_NAME} INTERFACE ZeroMQ::libzmq Boost::thread)
+target_link_libraries(${PROJECT_NAME} INTERFACE ${CMAKE_THREAD_LIBS_INIT} ${ZeroMQ_LIBRARIES} ${Boost_LIBRARIES} ${ADDITIONAL_LIBS})
+include_directories(${Boost_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR})
 
 add_library(ZeroMQ::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
@@ -91,8 +92,8 @@ if(AZMQ_NO_DEPRECATED)
     target_compile_definitions(${PROJECT_NAME} INTERFACE BOOST_ASIO_NO_DEPRECATED)
 endif()
 
-option(AZMQ_NO_TESTS "Build no tests" NOT ${CMAKE_MASTER_PROJECT})
-if(NOT AZMQ_NO_TESTS)
+option(BUILD_TESTS "Build no tests" ${CMAKE_MASTER_PROJECT})
+if(NOT AZMQ_NO_TESTS AND BUILD_TESTS)
     enable_testing()
 
     macro(add_catch_test name)

@@ -684,7 +684,7 @@ TEST_CASE( "Loopback", "[socket]" ) {
         ios_b.run();
     });
 
-    for (auto i = 0u; i < ct; ++i) {
+    for (auto i = 0U; i < ct; ++i) {
         sc.send(boost::asio::buffer(&i, sizeof(i)));
     }
 
