@@ -1,8 +1,5 @@
-project(actor)
+project(actor LANGUAGES CXX)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT}
-                                      ${ZeroMQ_LIBRARIES}
-                                      ${Boost_LIBRARIES})
-
+target_link_libraries(${PROJECT_NAME} PRIVATE ZeroMQ::azmq)
