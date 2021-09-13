@@ -89,7 +89,7 @@ namespace detail {
             return socket_type(res);
         }
 
-        static stream_descriptor get_stream_descriptor(boost::asio::io_service & io_service,
+        static stream_descriptor get_stream_descriptor(boost::asio::io_context & io_context,
                                                        socket_type & socket,
                                                        boost::system::error_code & ec) {
             BOOST_ASSERT_MSG(socket, "invalid socket");
@@ -101,13 +101,13 @@ namespace detail {
                 ec = make_error_code();
             else {
 #if ! defined BOOST_ASIO_WINDOWS
-                res.reset(new boost::asio::posix::stream_descriptor(io_service, handle));
+                res.reset(new boost::asio::posix::stream_descriptor(io_context, handle));
 #else
                 // Use duplicated SOCKET, because ASIO socket takes ownership over it so destroys one in dtor.
                 ::WSAPROTOCOL_INFO pi;
                 ::WSADuplicateSocket(handle, ::GetCurrentProcessId(), &pi);
                 handle = ::WSASocket(pi.iAddressFamily/*AF_INET*/, pi.iSocketType/*SOCK_STREAM*/, pi.iProtocol/*IPPROTO_TCP*/, &pi, 0, 0);
-                res.reset(new boost::asio::ip::tcp::socket(io_service, boost::asio::ip::tcp::v4(), handle));
+                res.reset(new boost::asio::ip::tcp::socket(io_context, boost::asio::ip::tcp::v4(), handle));
 #endif
             }
             return res;

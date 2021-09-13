@@ -1,11 +1,11 @@
 # Find Azmq Headers/Libs
 
 # Variables
-# AZMQ_ROOT - set this to a location where ZeroMQ may be found
+# AZMQ_ROOT - set this to a location where Azmq may be found
 #
-# Azmq_FOUND - True of ZeroMQ found
-# Azmq_INCLUDE_DIRS - Location of ZeroMQ includes
-# Azmq_LIBRARIS - ZeroMQ libraries
+# Azmq_FOUND - True of Azmq found
+# Azmq_INCLUDE_DIRS - Location of Azmq includes
+# Azmq_LIBRARIS - Azmq libraries
 
 include(FindPackageHandleStandardArgs)
 

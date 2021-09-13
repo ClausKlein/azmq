@@ -17,7 +17,7 @@ namespace pt = boost::posix_time;
 
 class server_t {
 public:
-    server_t(asio::io_service & ios)
+    explicit server_t(asio::io_context & ios)
         : pimpl_(std::make_shared<impl>())
         , frontend_(azmq::actor::spawn(ios, run, pimpl_))
     { }
@@ -76,7 +76,11 @@ private:
     // This is the function run by the background thread
     static void run(azmq::socket & backend, ptr pimpl) {
         do_receive(backend, pimpl);
+#if 1
         backend.get_io_service().run();
+#else
+        backend.get_executor().run();   // FIXME: OOST_ASIO_NO_DEPRECATED! CK
+#endif
     }
 
     azmq::socket frontend_;
@@ -104,7 +108,7 @@ int main(int /* argc */, char** /* argv */) {
 
     // halt on SIGINT or SIGTERM
     asio::signal_set signals(ios, SIGTERM, SIGINT);
-    signals.async_wait([&](boost::system::error_code const&, int) {
+    signals.async_wait([&](boost::system::error_code const& /*unused*/, int /*unused*/) {
         ios.stop();
     });
 
@@ -115,7 +119,7 @@ int main(int /* argc */, char** /* argv */) {
 
     // run for 5 secods
     asio::deadline_timer deadline(ios, pt::seconds(5));
-    deadline.async_wait([&](boost::system::error_code const&) {
+    deadline.async_wait([&](boost::system::error_code const& /*unused*/) {
         ios.stop();
     });
 

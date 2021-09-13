@@ -41,7 +41,7 @@ namespace detail {
         friend class core_access<Service>;
 
     public:
-        basic_io_object(boost::asio::io_service& ios)
+        basic_io_object(boost::asio::io_context& ios)
             : boost::asio::basic_io_object<Service>(ios)
         { }
     };
