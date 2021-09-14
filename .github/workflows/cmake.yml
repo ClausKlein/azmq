@@ -1,69 +1,75 @@
----
-name: CMake CI
+name: CMake
 
 on:
   push:
-    branches: [develop]
+    branches:
+      - '**'
   pull_request:
-    branches: [develop]
-
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Debug
-  CTEST_OUTPUT_ON_FAILURE: 1
+    branches: [ master ]
 
 jobs:
   build:
+    runs-on: ${{ matrix.config.os }}
     strategy:
-      fail-fast: false
-
       matrix:
-        os: [macos, ubuntu]
+        config:
+          - {
+            name: "ubuntu 20.04 with gcc",
+            os: ubuntu-20.04,
+            cc: "gcc",
+            cxx: "g++",
+          }
+          - {
+            name: "ubuntu 18.04 with gcc",
+            os: ubuntu-18.04,
+            cc: "gcc",
+            cxx: "g++",
+          }
+          - {
+            name: "ubuntu 20.04 with clang",
+            os: ubuntu-20.04,
+            cc: "clang",
+            cxx: "clang++",
+          }
+          - {
+            name: "ubuntu 18.04 with clang",
+            os: ubuntu-18.04,
+            cc: "clang",
+            cxx: "clang++",
+          }
+          - {
+            name: "macos-11 clang",
+            os: macos-11,
+            cc: "clang",
+            cxx: "clang++",
+          }
+          - {
+            name: "macos-10.15 clang",
+            os: macos-10.15,
+            cc: "clang",
+            cxx: "clang++",
+          }
 
-    runs-on: ${{ matrix.os }}-latest
+    env:
+      CC: ${{ matrix.config.cc }}
+      CXX: ${{ matrix.config.cxx }}
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install python dependencies
-        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+      - name: buildtools on ubuntu
+        if: startsWith(matrix.config.name, 'ubuntu')
         shell: bash
         run: |
-          pip3 install -r ${{github.workspace}}/.requirement.txt
-
-      - name: Install dependencies on ubuntu
-        if: startsWith(matrix.os, 'ubuntu')
+          sudo apt-get update -y
+          sudo apt-get install -y libboost-all-dev
+      - name: buildtools on macos
+        if: startsWith(matrix.config.name, 'macos')
         shell: bash
         run: |
-          sudo apt-get install gcc-10 libzmq3-dev libboost-all-dev
-          CXX=g++-10 cmake -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja
-
-      - name: Install dependencies on macos
-        if: startsWith(matrix.os, 'macos')
+          brew install boost
+      - name: build
         shell: bash
         run: |
-          brew install zmq boost
-          cmake -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G Ninja
+          cmake -S .github/workflows/cmake-superbuild  -B build
+          cmake --build build
 
-      - name: Configure CMake on windows
-        if: startsWith(matrix.os, 'windows')
-        # Configure CMake in a 'build' subdirectory.  See too
-        # https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: cmake -B ${{github.workspace}}/build -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-      - name: Build
-        # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-
-      - name: Test
-        working-directory: ${{github.workspace}}/build
-        # Execute tests defined by the CMake configuration.
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        shell: bash
-        run: |
-          ctest -C ${{env.BUILD_TYPE}} --timeout 17
-
-      - name: Gcovr
-        shell: bash
-        run: |
-          gcovr --root . || echo Ignored
