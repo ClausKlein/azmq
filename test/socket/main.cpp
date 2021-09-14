@@ -605,7 +605,9 @@ TEST_CASE( "Socket Monitor", "[socket]" ) {
 #endif
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_CLOSED);
 
+#ifdef __APPLE__
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_DISCONNECTED); // NOTE: on OSX v11.5.1 with zmq v4.2.3? CK!
+#endif
 
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_MONITOR_STOPPED);
       REQUIRE(server_monitor.events_.size() == i);
