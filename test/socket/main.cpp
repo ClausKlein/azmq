@@ -590,7 +590,7 @@ TEST_CASE( "Socket Monitor", "[socket]" ) {
         CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_CONNECT_DELAYED);
         CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_CONNECTED);
 #ifdef ZMQ_EVENT_HANDSHAKE_SUCCEEDED
-          CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_HANDSHAKE_SUCCEEDED);
+        CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_HANDSHAKE_SUCCEEDED);
 #endif
         CHECK(client_monitor.events_.at(i++).e == ZMQ_EVENT_MONITOR_STOPPED);
         REQUIRE(client_monitor.events_.size() == i);
@@ -601,9 +601,12 @@ TEST_CASE( "Socket Monitor", "[socket]" ) {
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_LISTENING);
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_ACCEPTED);
 #ifdef ZMQ_EVENT_HANDSHAKE_SUCCEEDED
-        CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_HANDSHAKE_SUCCEEDED);
+      CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_HANDSHAKE_SUCCEEDED);
 #endif
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_CLOSED);
+
+      CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_DISCONNECTED); // NOTE: on OSX v11.5.1 with zmq v4.2.3? CK!
+
       CHECK(server_monitor.events_.at(i++).e == ZMQ_EVENT_MONITOR_STOPPED);
       REQUIRE(server_monitor.events_.size() == i);
   }
