@@ -1,3 +1,4 @@
+export CPPFLAGS=-D__works_on_my_machine__
 
 .PHONY: all diestclean
 all: build
