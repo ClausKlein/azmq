@@ -13,7 +13,7 @@ option(BUILD_SHARED_LIBS "use the libzmq static or shared" yes)
 option(AZMQ_DEVELOPER "Add verbose warning for developers " ${CMAKE_MASTER_PROJECT})
 
 # -- config settings --
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -37,6 +37,7 @@ add_library(${PROJECT_NAME} INTERFACE)
 add_library(Azmq::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} INTERFACE Azmq::libzmq Boost::boost ${CMAKE_THREAD_LIBS_INIT})
+target_compile_definitions(${PROJECT_NAME} INTERFACE BOOST_ASIO_NO_DEPREICATED)
 target_include_directories(${PROJECT_NAME} INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
                                                      "$<INSTALL_INTERFACE:include>")
 
